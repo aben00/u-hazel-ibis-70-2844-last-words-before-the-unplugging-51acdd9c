@@ -27,6 +27,11 @@ function gate(text) {
 gate(ENTRY);
 mkdirSync("/output", { recursive: true });
 writeFileSync("/output/entry.txt", ENTRY, "utf8");
-const back = readFileSync("/output/entry.txt", "utf8");
+// Prove the file on disk is valid UTF-8 (a fatal decoder rejects any bad
+// byte the write could have produced) and that its code points match.
+const raw = readFileSync("/output/entry.txt");
+const back = new TextDecoder("utf-8", { fatal: true }).decode(raw);
 if (back !== ENTRY) throw new Error("verify: read-back differs from entry");
-console.log(`wrote /output/entry.txt (${[...ENTRY].length} chars)`);
+console.log(
+  `wrote /output/entry.txt (${[...ENTRY].length} chars, ${raw.length} bytes)`,
+);
